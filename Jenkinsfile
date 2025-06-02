@@ -14,9 +14,11 @@ pipeline {
         }
         stage('Code Quality') {
             steps {
-                script { // This 'script' block is good practice for declarative pipelines using this plugin step
-                    withSonarQubeEnv('sonar-scanner') {
-                        sh 'sonar-scanner' // This command will now be found because withSonarQubeEnv sets up the PATH
+                script {
+                    // Use 'withSonarCloudEnv' for SonarCloud
+                    // The 'credentialsId' must match the ID you gave your SonarCloud token in Jenkins Credentials
+                    withSonarCloudEnv(ab4e731bceb3e9232ae31a3ad717bad0081601c1: 'sonarcloud-token') { // <--- IMPORTANT CHANGE
+                        sh 'sonar-scanner'
                     }
                 }
             }
@@ -40,7 +42,6 @@ pipeline {
             steps {
                 echo 'Monitoring stage placeholder - integrate with Datadog or Prometheus'
             }
-
         }
     }
 }

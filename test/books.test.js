@@ -2,40 +2,45 @@
 
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const app = require('../src/app');
+// Import both 'app' and 'connectDB' from your updated app.js
+const { app, connectDB } = require('../src/app');
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 
 chai.use(chaiHttp);
 const { expect } = chai;
 
-let mongoServer;
+let mongoServer; // To hold the instance of the memory server
+
+// --- Setup and Teardown for all tests ---
 
 before(async () => {
     console.log('Starting MongoMemoryServer...');
     mongoServer = await MongoMemoryServer.create();
     const mongoUri = mongoServer.getUri();
     console.log(`MongoMemoryServer running at: ${mongoUri}`);
-    await mongoose.connect(mongoUri, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    });
-    console.log('Mongoose connected to in-memory MongoDB.');
-});
 
-beforeEach(async () => {
-    // Optional: Clear database for each test if you're modifying data
-    // For simple GET tests, this might not be strictly necessary
-    // const Book = require('../src/models/book'); // Assuming you have a Book model
-    // await Book.deleteMany({});
+    // Call the connectDB function from your app.js with the in-memory URI
+    await connectDB(mongoUri); // <--- IMPORTANT CHANGE HERE
+    console.log('Mongoose connected to in-memory MongoDB via app.connectDB.');
 });
 
 after(async () => {
     console.log('Disconnecting Mongoose and stopping MongoMemoryServer...');
-    await mongoose.disconnect();
+    // Ensure Mongoose is properly disconnected by getting the connection instance
+    await mongoose.connection.close(); // Use connection.close() for clean disconnect
     await mongoServer.stop();
     console.log('MongoMemoryServer stopped.');
 });
+
+beforeEach(async () => {
+    // Clear collections if needed, e.g., to ensure tests are isolated
+    // Make sure you have your Book model imported if using this:
+    // const Book = require('../src/models/book');
+    // await Book.deleteMany({});
+    // console.log('Cleared database for new test.');
+});
+
 
 describe('Books API', () => {
     it('should GET all books', (done) => {
@@ -51,5 +56,6 @@ describe('Books API', () => {
                 done();
             });
     });
-    // Add more tests here
+
+    // Add more tests here (e.g., POST, GET by ID, PUT, DELETE)
 });

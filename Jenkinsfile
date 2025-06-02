@@ -15,14 +15,13 @@ pipeline {
         stage('Code Quality') {
             steps {
                 script {
-                    withSonarQubeEnv('SonarQube') {
-                        sh """
-                        docker run --rm \\
-                          -e SONAR_HOST_URL=http://localhost:9000 \\
-                          -e SONAR_LOGIN=ab4e731bceb3e9232ae31a3ad717bad0081601c1 \\
-                          -v \$WORKSPACE:/usr/src \\
-                          sonarsource/sonar-scanner-cli
-                        """
+                    // *** THIS IS THE CRUCIAL CHANGE FOR SONARCLOUD ***
+                    // It uses the SonarCloud Plugin to set up the environment
+                    // 'credentialsId' refers to the ID of your Secret Text credential in Jenkins
+                    withSonarCloudEnv(ab4e731bceb3e9232ae31a3ad717bad0081601c1: 'sonar-bookapi') { // <--- CHANGE THIS LINE
+                        // Just run 'sonar-scanner' here. Jenkins will find it (if configured in Global Tool Config)
+                        // and the 'withSonarCloudEnv' will set up SONAR_HOST_URL, SONAR_LOGIN, etc.
+                        sh 'sonar-scanner' // <--- CHANGE THIS LINE
                     }
                 }
             }

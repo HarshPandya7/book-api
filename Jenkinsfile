@@ -15,13 +15,11 @@ pipeline {
         stage('Code Quality') {
             steps {
                 script {
-                    // *** THIS IS THE CRUCIAL CHANGE FOR SONARCLOUD ***
-                    // It uses the SonarCloud Plugin to set up the environment
-                    // 'credentialsId' refers to the ID of your Secret Text credential in Jenkins
-                    withSonarCloudEnv(ab4e731bceb3e9232ae31a3ad717bad0081601c1: 'sonar-bookapi') { // <--- CHANGE THIS LINE
-                        // Just run 'sonar-scanner' here. Jenkins will find it (if configured in Global Tool Config)
-                        // and the 'withSonarCloudEnv' will set up SONAR_HOST_URL, SONAR_LOGIN, etc.
-                        sh 'sonar-scanner' // <--- CHANGE THIS LINE
+                    // Use the NAME of the SonarQube server configuration you set up in Jenkins
+                    withSonarQubeEnv('SonarQube') { // <--- Use the name you defined in "Configure System"
+                        // This assumes 'sonar-scanner' is available on the Jenkins agent's PATH.
+                        // It will automatically use the environment variables injected by withSonarQubeEnv.
+                        sh 'sonar-scanner'
                     }
                 }
             }

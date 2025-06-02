@@ -8,7 +8,8 @@ pipeline {
         }
         stage('Test') {
             steps {
-                sh 'npm test'
+                // Change this line
+                sh 'npm run test' // <-- Use npm run test
             }
         }
         stage('Code Quality') {

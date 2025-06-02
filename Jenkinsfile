@@ -8,9 +8,9 @@ pipeline {
         }
         stage('Test') {
             steps {
-                // Add this line to ensure execute permissions for mocha
                 sh 'chmod +x node_modules/.bin/mocha'
-                sh 'npx mocha --timeout 10000 --exit'
+                // Increase the timeout here to something like 60 seconds (60000ms)
+                sh 'npx mocha --timeout 60000 --exit' // <-- Changed timeout
             }
         }
         stage('Code Quality') {

@@ -16,9 +16,11 @@ pipeline {
             steps {
                 script {
                     // Use the NAME of the SonarQube server configuration you set up in Jenkins
-                    withSonarQubeEnv('SonarQube') { 
-			sh 'npm install -g sonarqube-scanner'
-               		sh 'node_modules/.bin/sonar-scanner'
+                    // (e.g., 'LocalSonarQube' or 'SonarQube' if that's what you named it)
+                    withSonarQubeEnv('SonarQube') { // <--- ENSURE THIS NAME MATCHES YOUR JENKINS CONFIG
+                        // This 'sh 'sonar-scanner'' command will now work because:
+                        // 1. withSonarQubeEnv sets up SONAR_HOST_URL and SONAR_LOGIN.
+                        // 2. Global Tool Configuration ensures 'sonar-scanner' binary is on PATH.
                         sh 'sonar-scanner'
                     }
                 }

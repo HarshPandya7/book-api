@@ -1,5 +1,14 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'node:18'  // Node.js base image with npm installed
+            args '-v /var/run/docker.sock:/var/run/docker.sock'  // mount Docker socket for Docker CLI inside container
+        }
+    }
+    environment {
+        SONAR_HOST_URL = 'http://localhost:9000'   // replace with your actual SonarQube server URL
+        SONAR_AUTH_TOKEN = credentials('ab4e731bceb3e9232ae31a3ad717bad0081601c1') // Jenkins stored credential ID for SonarQube token
+    }
     stages {
         stage('Build') {
             steps {
@@ -14,16 +23,14 @@ pipeline {
         }
         stage('Code Quality') {
             steps {
-                script {
-                    withSonarQubeEnv('SonarQube') {
-                        sh """
-                        docker run --rm \\
-                          -e SONAR_HOST_URL=http://localhost:9000 \\
-                          -e SONAR_LOGIN=ab4e731bceb3e9232ae31a3ad717bad0081601c1 \\
-                          -v \$WORKSPACE:/usr/src \\
-                          sonarsource/sonar-scanner-cli
-                        """
-                    }
+                withSonarQubeEnv('SonarQube') {
+                    sh """
+                    docker run --rm \\
+                      -e SONAR_HOST_URL=$SONAR_HOST_URL \\
+                      -e SONAR_LOGIN=$SONAR_AUTH_TOKEN \\
+                      -v $WORKSPACE:/usr/src \\
+                      sonarsource/sonar-scanner-cli
+                    """
                 }
             }
         }

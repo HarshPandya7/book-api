@@ -8,8 +8,8 @@ pipeline {
         }
         stage('Test') {
             steps {
-                // Change this line
-                sh 'npm run test' // <-- Use npm run test
+                // Change this line from 'npm run test' to 'npx mocha --timeout 10000 --exit'
+                sh 'npx mocha --timeout 10000 --exit'
             }
         }
         stage('Code Quality') {

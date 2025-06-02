@@ -1,6 +1,6 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const app = require('../app'); // ✅ Uses exported app
+const app = require('../src/app'); // ✅ Correct path to app.js
 
 chai.use(chaiHttp);
 const { expect } = chai;

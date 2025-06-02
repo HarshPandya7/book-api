@@ -8,7 +8,8 @@ pipeline {
         }
         stage('Test') {
             steps {
-                // Change this line from 'npm run test' to 'npx mocha --timeout 10000 --exit'
+                // Add this line to ensure execute permissions for mocha
+                sh 'chmod +x node_modules/.bin/mocha'
                 sh 'npx mocha --timeout 10000 --exit'
             }
         }

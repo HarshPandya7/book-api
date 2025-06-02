@@ -16,9 +16,9 @@ pipeline {
             steps {
                 script {
                     // Use the NAME of the SonarQube server configuration you set up in Jenkins
-                    withSonarQubeEnv('SonarQube') { // <--- Use the name you defined in "Configure System"
-                        // This assumes 'sonar-scanner' is available on the Jenkins agent's PATH.
-                        // It will automatically use the environment variables injected by withSonarQubeEnv.
+                    withSonarQubeEnv('SonarQube') { 
+			sh 'npm install -g sonarqube-scanner'
+               		sh 'node_modules/.bin/sonar-scanner'
                         sh 'sonar-scanner'
                     }
                 }

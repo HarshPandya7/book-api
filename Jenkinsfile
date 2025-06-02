@@ -15,9 +15,7 @@ pipeline {
         stage('Code Quality') {
             steps {
                 script {
-                    // Use 'withSonarCloudEnv' for SonarCloud
-                    // The 'credentialsId' must match the ID you gave your SonarCloud token in Jenkins Credentials
-                    withSonarCloudEnv(ab4e731bceb3e9232ae31a3ad717bad0081601c1: 'sonarcloud-token') { // <--- IMPORTANT CHANGE
+                    withSonarQubeEnv('SonarQube') {
                         sh 'sonar-scanner'
                     }
                 }

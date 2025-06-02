@@ -16,7 +16,13 @@ pipeline {
             steps {
                 script {
                     withSonarQubeEnv('SonarQube') {
-                        sh 'sonar-scanner'
+                        sh """
+                        docker run --rm \\
+                          -e SONAR_HOST_URL=http://localhost:9000 \\
+                          -e SONAR_LOGIN=ab4e731bceb3e9232ae31a3ad717bad0081601c1 \\
+                          -v \$WORKSPACE:/usr/src \\
+                          sonarsource/sonar-scanner-cli
+                        """
                     }
                 }
             }

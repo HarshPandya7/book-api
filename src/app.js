@@ -36,6 +36,7 @@ if (require.main === module) {
 
   connectDB(DEFAULT_MONGO_URI)
     .then(() => {
-      app.listen(PORT, () => console.log(Server running on port ${PORT}));
+      app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
     });
 }

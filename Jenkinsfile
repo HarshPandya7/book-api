@@ -19,6 +19,7 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Running unit tests and generating JUnit report...'
+                sh 'chmod +x ./node_modules/.bin/mocha'
                 sh 'npm test'
             }
         }

@@ -1,41 +1,54 @@
-// src/app.js
-
-const express = require('express');
+const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongoose = require('mongoose');
-const bookRoutes = require('./routes/bookRoutes'); // Assuming your routes are in ./routes/bookRoutes.js
+const request = require('supertest');
+const { app, connectDB } = require('../src/app'); // Destructure app and connectDB
+const chai = require('chai');
+chai.should();
 
-const app = express();
-app.use(express.json());
+let mongoServer;
 
-// Define a function to connect to the database
-// This function will be called by your server.js or by your test file
-const connectDB = async (mongoUri) => {
-  try {
-    await mongoose.connect(mongoUri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      // You can add more options here if needed
+before(async function () {
+    this.timeout(30000); // Allow MongoDB download/setup time
+
+    console.log('Starting MongoMemoryServer...');
+    mongoServer = await MongoMemoryServer.create({
+        binary: {
+            version: '7.0.3' // Match the downloaded version from your Jenkins logs
+        }
     });
-    console.log('MongoDB connected successfully!');
-  } catch (err) {
-    console.error('MongoDB connection error:', err);
-    process.exit(1); // Exit process on connection failure in a real app
-  }
-};
 
-// Routes
-app.use('/api', bookRoutes);
+    const mongoUri = mongoServer.getUri();
+    console.log(`MongoMemoryServer running at: ${mongoUri}`);
 
-// Export app and connectDB function
-module.exports = { app, connectDB };
+    try {
+        await connectDB(mongoUri); // Use the exported function from app.js
+    } catch (err) {
+        console.error('MongoDB connection error in test:', err);
+        throw err;
+    }
+});
 
-// ✅ Only start the server AND connect to DB if this file is run directly
-if (require.main === module) {
-  const PORT = process.env.PORT || 3000;
-  const DEFAULT_MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/bookdb';
+after(async function () {
+    this.timeout(30000);
 
-  connectDB(DEFAULT_MONGO_URI)
-    .then(() => {
-      app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    try {
+        await mongoose.disconnect();
+        console.log('Mongoose disconnected.');
+    } catch (err) {
+        console.error('Disconnection error:', err);
+    }
+
+    if (mongoServer) {
+        await mongoServer.stop();
+        console.log('MongoMemoryServer stopped.');
+    }
+});
+
+describe('Books API', () => {
+    it('should GET all books', async () => {
+        const res = await request(app).get('/api/books');
+        res.should.have.status(200);
+        res.body.should.be.a('array');
+        res.body.length.should.be.eql(0); // Assuming DB starts empty
     });
-}
+});

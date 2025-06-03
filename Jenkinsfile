@@ -1,48 +1,42 @@
-// Jenkinsfile
-
 pipeline {
     agent any
+
+    environment {
+        SONARQUBE_ENV = 'SonarQube' // Name of your SonarQube server in Jenkins config
+    }
+
     stages {
         stage('Build') {
             steps {
-                // Ensure all dependencies, including devDependencies, are installed
-                sh 'npm install --include=dev' // <--- CHANGE THIS LINE
+                echo 'Installing dependencies...'
+                sh 'npm install --include=dev'
             }
         }
+
         stage('Test') {
             steps {
+                echo 'Running unit tests...'
                 sh 'chmod +x node_modules/.bin/mocha'
                 sh 'npx mocha --timeout 60000 --exit'
             }
         }
+
         stage('Code Quality') {
             steps {
-                script {
-                    withSonarQubeEnv('SonarQube') {
-                        sh 'sonar-scanner'
-                    }
+                echo 'Running SonarQube analysis...'
+                withSonarQubeEnv("${SONARQUBE_ENV}") {
+                    sh 'sonar-scanner'
                 }
             }
         }
-        stage('Security') {
-            steps {
-                sh 'snyk test || true'
-            }
+    }
+
+    post {
+        success {
+            echo 'Pipeline executed successfully!'
         }
-        stage('Deploy') {
-            steps {
-                sh 'docker-compose up -d --build'
-            }
-        }
-        stage('Release') {
-            steps {
-                echo 'Release stage placeholder - tag or push image here'
-            }
-        }
-        stage('Monitoring') {
-            steps {
-                echo 'Monitoring stage placeholder - integrate with Datadog or Prometheus'
-            }
+        failure {
+            echo 'Pipeline failed. Check the logs for details.'
         }
     }
 }

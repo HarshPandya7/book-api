@@ -5,6 +5,8 @@ pipeline {
         SONARQUBE_ENV = 'SonarQube'
         DOCKER_IMAGE_NAME = 'book-api'
         MONITORING_URL = 'http://localhost:3000/health'
+        // Add email recipients here
+        EMAIL_RECIPIENTS = 'your.email@example.com'
     }
 
     stages {
@@ -84,9 +86,23 @@ pipeline {
     post {
         success {
             echo '✅ Pipeline executed successfully!'
+            emailext (
+                subject: "Jenkins Pipeline Success: Build #${env.BUILD_NUMBER}",
+                body: """<p>The Jenkins pipeline for <b>${env.JOB_NAME}</b> completed successfully.</p>
+                         <p>Build details: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
+                recipientProviders: [[$class: 'DevelopersRecipientProvider']],
+                to: "${EMAIL_RECIPIENTS}"
+            )
         }
         failure {
             echo '❌ Pipeline failed. Check the logs for details.'
+            emailext (
+                subject: "Jenkins Pipeline Failure: Build #${env.BUILD_NUMBER}",
+                body: """<p>The Jenkins pipeline for <b>${env.JOB_NAME}</b> failed.</p>
+                         <p>Please check the build logs: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
+                recipientProviders: [[$class: 'DevelopersRecipientProvider']],
+                to: "${EMAIL_RECIPIENTS}"
+            )
         }
     }
 }

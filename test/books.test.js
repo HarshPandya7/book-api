@@ -5,7 +5,8 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 chai.should();
 
-const app = require('../src/app'); // Ensure your app exports the Express instance
+const { app, connectDB } = require('../src/app');
+ // Ensure your app exports the Express instance
 
 let mongoServer;
 

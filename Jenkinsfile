@@ -6,7 +6,7 @@ pipeline {
         DOCKER_IMAGE_NAME = 'book-api'
         MONITORING_URL = 'http://localhost:3000/health'
         // Add email recipients here
-        EMAIL_RECIPIENTS = 'your.email@example.com'
+        EMAIL_RECIPIENTS = 'hpandya368@gmail.com'
     }
 
     stages {

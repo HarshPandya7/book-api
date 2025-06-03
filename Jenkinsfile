@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE_ENV = 'SonarQube'       // Jenkins SonarQube config name
-        DOCKER_IMAGE_NAME = 'book-api'    // Change this if needed
-        MONITORING_URL = 'http://localhost:3000/health' // Replace with real endpoint
+        SONARQUBE_ENV = 'SonarQube'
+        DOCKER_IMAGE_NAME = 'book-api'
+        MONITORING_URL = 'http://localhost:3000/health'
     }
 
     stages {
@@ -18,9 +18,15 @@ pipeline {
 
         stage('Test') {
             steps {
-                echo 'Running unit tests...'
-                sh 'chmod +x node_modules/.bin/mocha'
-                sh 'npx mocha --timeout 60000 --exit'
+                echo 'Running unit tests and generating JUnit report...'
+                sh 'npm test'
+            }
+        }
+
+        stage('Publish Test Report') {
+            steps {
+                echo 'Publishing JUnit test report...'
+                junit 'test-results/results.xml'
             }
         }
 
@@ -36,7 +42,6 @@ pipeline {
         stage('Security Scan') {
             steps {
                 echo 'Running security vulnerability scan...'
-                // Prevent pipeline failure if vulnerabilities are found
                 sh 'npm audit --audit-level=moderate || true'
             }
         }

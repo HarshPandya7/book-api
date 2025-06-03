@@ -1,22 +1,19 @@
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongoose = require('mongoose');
 const request = require('supertest');
-const chai = require('chai');
-const chaiHttp = require('chai-http');
-chai.should();
+const { expect } = require('chai');
 
-const { app, connectDB } = require('../src/app');
- // Ensure your app exports the Express instance
+const { app } = require('../src/app'); // Ensure app exports the Express instance
 
 let mongoServer;
 
 before(async function () {
-    this.timeout(30000); // Extend timeout for MongoDB startup
+    this.timeout(30000); // Allow extra time for MongoDB to spin up
 
     console.log('Starting MongoMemoryServer...');
     mongoServer = await MongoMemoryServer.create({
         binary: {
-            version: '7.0.3' // ✅ Compatible with Debian 12 and modern environments
+            version: '7.0.3' // Compatible with Debian 12 and most CI systems
         }
     });
 
@@ -61,8 +58,10 @@ after(async function () {
 describe('Books API', () => {
     it('should GET all books', async () => {
         const res = await request(app).get('/api/books');
-        res.should.have.status(200);
-        res.body.should.be.a('array');
-        res.body.length.should.be.eql(0); // Expecting no books initially
+
+        // Assertions using Chai's expect
+        expect(res.status).to.equal(200);
+        expect(res.body).to.be.an('array');
+        expect(res.body.length).to.equal(0); // Assuming database is empty at test start
     });
 });
